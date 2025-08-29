@@ -4,381 +4,135 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MemeSticker - Kumpulan Stiker Meme</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <style>
-        :root {
-            --bg-color: #fff;
-            --text-color: #000;
-            --primary-color: #1DA1F2;
-            --secondary-color: #E6ECF0;
-            --border-color: #EBEEF0;
-            --hover-color: #F5F8FA;
+    <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: '#1DA1F2',
+            darkbg: '#15202B',
+            darkcard: '#1C2E3A',
+            darktext: '#D6D9DB',
+            darkborder: '#38444D',
+          }
         }
-
-        body.dark-theme {
-            --bg-color: #15202B;
-            --text-color: #D6D9DB;
-            --primary-color: #1DA1F2;
-            --secondary-color: #273340;
-            --border-color: #38444D;
-            --hover-color: #1C2E3A;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            transition: background-color 0.3s, color 0.3s;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-        }
-
-        .container {
-            display: flex;
-            justify-content: center;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 15px;
-        }
-
-        .main-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px;
-            border-bottom: 1px solid var(--border-color);
-            position: sticky;
-            top: 0;
-            background-color: var(--bg-color);
-            z-index: 100;
-        }
-
-        .logo {
-            font-weight: bold;
-            font-size: 1.5em;
-            color: var(--primary-color);
-        }
-
-        .toggle-theme {
-            cursor: pointer;
-            padding: 5px;
-        }
-
-        /* Layout Utama */
-        .wrapper {
-            display: flex;
-            width: 100%;
-        }
-
-        .sidebar-left, .sidebar-right {
-            padding: 20px;
-            min-width: 250px;
-        }
-
-        .sidebar-left {
-            border-right: 1px solid var(--border-color);
-            position: sticky;
-            top: 60px;
-            height: calc(100vh - 60px);
-        }
-        
-        .sidebar-right {
-            border-left: 1px solid var(--border-color);
-            position: sticky;
-            top: 60px;
-            height: calc(100vh - 60px);
-        }
-
-        .feed {
-            flex-grow: 1;
-            padding: 20px;
-            border-left: 1px solid var(--border-color);
-            border-right: 1px solid var(--border-color);
-        }
-
-        .nav-link {
-            display: flex;
-            align-items: center;
-            padding: 10px;
-            margin-bottom: 5px;
-            border-radius: 9999px;
-            text-decoration: none;
-            color: var(--text-color);
-            font-weight: bold;
-        }
-
-        .nav-link:hover {
-            background-color: var(--hover-color);
-        }
-
-        .nav-link .icon {
-            font-size: 1.5em;
-            width: 30px;
-            margin-right: 15px;
-        }
-
-        .post-button {
-            background-color: var(--primary-color);
-            color: #fff;
-            padding: 15px;
-            border-radius: 9999px;
-            text-align: center;
-            font-weight: bold;
-            margin-top: 20px;
-            cursor: pointer;
-            border: none;
-            width: 100%;
-        }
-
-        .sticker-card {
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            margin-bottom: 20px;
-            overflow: hidden;
-            background-color: var(--bg-color);
-        }
-        
-        .sticker-header {
-            display: flex;
-            align-items: center;
-            padding: 15px;
-        }
-
-        .sticker-user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            margin-right: 10px;
-        }
-        
-        .sticker-user-info {
-            font-weight: bold;
-        }
-        
-        .sticker-user-info .username {
-            color: #8899A6;
-            font-weight: normal;
-        }
-        
-        .sticker-image {
-            width: 100%;
-            display: block;
-        }
-        
-        .sticker-actions {
-            display: flex;
-            justify-content: space-around;
-            padding: 10px;
-            border-top: 1px solid var(--border-color);
-        }
-        
-        .sticker-action {
-            color: #657786;
-            cursor: pointer;
-            padding: 5px 10px;
-            border-radius: 9999px;
-            display: flex;
-            align-items: center;
-        }
-        
-        .sticker-action:hover {
-            background-color: var(--hover-color);
-            color: var(--primary-color);
-        }
-
-        .sticker-action i {
-            margin-right: 5px;
-        }
-        
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0, 0, 0, 0.4);
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-content {
-            background-color: var(--bg-color);
-            padding: 20px;
-            border-radius: 12px;
-            width: 90%;
-            max-width: 500px;
-            position: relative;
-        }
-        
-        .modal-close {
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            font-size: 2em;
-            cursor: pointer;
-            color: var(--text-color);
-        }
-        
-        .upload-form input, .upload-form textarea {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            background-color: var(--secondary-color);
-            color: var(--text-color);
-        }
-        
-        .upload-form button {
-            background-color: var(--primary-color);
-            color: #fff;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 9999px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        
-        #sticker-preview {
-            max-width: 100%;
-            max-height: 200px;
-            object-fit: contain;
-            display: block;
-            margin-bottom: 15px;
-        }
-
-        /* Responsif */
-        @media (max-width: 768px) {
-            .sidebar-left, .sidebar-right {
-                display: none;
-            }
-
-            .feed {
-                border-left: none;
-                border-right: none;
-            }
-        }
-        
-    </style>
+      }
+    }
+  </script>
 </head>
-<body>
+<body class="bg-white dark:bg-darkbg text-black dark:text-darktext font-sans">
 
-    <header class="main-header">
-        <span class="logo">MemeSticker</span>
+    <header class="sticky top-0 z-50 bg-white dark:bg-darkbg bg-opacity-80 backdrop-blur-sm border-b border-gray-200 dark:border-darkborder">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center py-3">
+                <span class="text-2xl font-bold text-primary">MemeSticker</span>
         <div class="toggle-theme" id="theme-toggle">
             <i class="fas fa-moon"></i>
         </div>
+            </div>
+        </div>
     </header>
 
-    <div class="container">
-        <div class="wrapper">
-            <aside class="sidebar-left">
-                <nav>
-                    <a href="#" class="nav-link"><span class="icon"><i class="fas fa-home"></i></span> Beranda</a>
-                    <a href="#" class="nav-link"><span class="icon"><i class="fas fa-hashtag"></i></span> Jelajah</a>
-                    <a href="#" class="nav-link"><span class="icon"><i class="fas fa-bell"></i></span> Notifikasi</a>
-                    <a href="#" class="nav-link"><span class="icon"><i class="fas fa-envelope"></i></span> Pesan</a>
-                    <a href="#" class="nav-link"><span class="icon"><i class="fas fa-bookmark"></i></span> Bookmarks</a>
-                    <a href="#" class="nav-link"><span class="icon"><i class="fas fa-user"></i></span> Profil</a>
-                    <a href="#" class="nav-link"><span class="icon"><i class="fas fa-ellipsis-h"></i></span> Lainnya</a>
+    <div class="container mx-auto px-4">
+        <div class="flex">
+            <aside class="hidden md:block w-64 py-4 pr-4 border-r border-gray-200 dark:border-darkborder sticky top-[60px] h-screen">
+                <nav class="flex flex-col space-y-2">
+                    <a href="#" class="flex items-center px-4 py-2 rounded-full hover:bg-gray-200 dark:hover:bg-darkcard font-bold text-lg"><span class="w-8 text-center"><i class="fas fa-home"></i></span> Beranda</a>
+                    <a href="#" class="flex items-center px-4 py-2 rounded-full hover:bg-gray-200 dark:hover:bg-darkcard font-bold text-lg"><span class="w-8 text-center"><i class="fas fa-hashtag"></i></span> Jelajah</a>
+                    <a href="#" class="flex items-center px-4 py-2 rounded-full hover:bg-gray-200 dark:hover:bg-darkcard font-bold text-lg"><span class="w-8 text-center"><i class="fas fa-bell"></i></span> Notifikasi</a>
+                    <a href="#" class="flex items-center px-4 py-2 rounded-full hover:bg-gray-200 dark:hover:bg-darkcard font-bold text-lg"><span class="w-8 text-center"><i class="fas fa-envelope"></i></span> Pesan</a>
+                    <a href="#" class="flex items-center px-4 py-2 rounded-full hover:bg-gray-200 dark:hover:bg-darkcard font-bold text-lg"><span class="w-8 text-center"><i class="fas fa-bookmark"></i></span> Bookmarks</a>
+                    <a href="#" class="flex items-center px-4 py-2 rounded-full hover:bg-gray-200 dark:hover:bg-darkcard font-bold text-lg"><span class="w-8 text-center"><i class="fas fa-user"></i></span> Profil</a>
+                    <a href="#" class="flex items-center px-4 py-2 rounded-full hover:bg-gray-200 dark:hover:bg-darkcard font-bold text-lg"><span class="w-8 text-center"><i class="fas fa-ellipsis-h"></i></span> Lainnya</a>
                 </nav>
-                <button class="post-button" id="open-upload-modal">Unggah Sticker</button>
             </aside>
 
-            <main class="feed" id="sticker-feed">
-                </main>
+            <main class="flex-grow p-4 border-l border-r border-gray-200 dark:border-darkborder" id="sticker-feed">
+            </main>
 
-            <aside class="sidebar-right">
-                <div class="search-bar">
-                    <input type="text" placeholder="Cari Sticker..." style="width: 100%; padding: 10px; border-radius: 9999px; border: 1px solid var(--border-color); background-color: var(--secondary-color); color: var(--text-color);">
+            <aside class="hidden lg:block w-80 py-4 pl-4 sticky top-[60px] h-screen">
+                <div class="relative">
+                    <input type="text" placeholder="Cari Sticker..." class="w-full pl-10 pr-4 py-2 rounded-full bg-gray-200 dark:bg-darkcard focus:outline-none focus:ring-2 focus:ring-primary">
+                    <span class="absolute left-3 top-2 text-gray-400"><i class="fas fa-search"></i></span>
                 </div>
-                <div class="trends-section" style="margin-top: 20px; background-color: var(--secondary-color); padding: 15px; border-radius: 12px;">
-                    <h3 style="margin-bottom: 10px;">Trending untukmu</h3>
-                    <ul style="list-style: none;">
-                        <li style="margin-bottom: 5px;">#memeIndonesia</li>
-                        <li style="margin-bottom: 5px;">#animeMeme</li>
-                        <li style="margin-bottom: 5px;">#lucuBanget</li>
+                <div class="mt-4 bg-gray-100 dark:bg-darkcard rounded-lg p-4">
+                    <h3 class="font-bold text-lg mb-2">Trending untukmu</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-primary hover:underline">#memeIndonesia</a></li>
+                        <li><a href="#" class="text-primary hover:underline">#animeMeme</a></li>
+                        <li><a href="#" class="text-primary hover:underline">#lucuBanget</a></li>
                     </ul>
                 </div>
             </aside>
         </div>
     </div>
 
-    <div id="upload-modal" class="modal">
-        <div class="modal-content">
-            <span class="modal-close">&times;</span>
-            <h2 style="margin-bottom: 15px;">Unggah Sticker Baru</h2>
-            <form id="upload-form" class="upload-form">
-                <input type="text" id="sticker-title" placeholder="Judul Sticker" required>
-                <input type="text" id="sticker-hashtags" placeholder="#tagar #tagar_lain">
-                <input type="file" id="sticker-image-file" accept="image/*" required>
-                <img id="sticker-preview" src="#" alt="Pratinjau Stiker" style="display: none;">
-                <button type="submit">Unggah</button>
-            </form>
-        </div>
-    </div>
-
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const stickerFeed = document.getElementById('sticker-feed');
-            const openUploadModalBtn = document.getElementById('open-upload-modal');
-            const uploadModal = document.getElementById('upload-modal');
-            const closeModalBtn = document.querySelector('.modal-close');
-            const uploadForm = document.getElementById('upload-form');
-            const stickerImageInput = document.getElementById('sticker-image-file');
-            const stickerPreview = document.getElementById('sticker-preview');
             const themeToggle = document.getElementById('theme-toggle');
 
-            // Data stiker dummy
-            let stickersData = [
-                { id: 1, user: 'UserMeme1', username: '@mememaster', image: 'https://i.ibb.co/L6M5z4S/sticker1.jpg', title: 'Sticker Kucing Bingung', hashtags: ['kucing', 'bingung', 'meme'], likes: 120, bookmarks: 50, downloads: 30, shares: 15 },
-                { id: 2, user: 'UserMeme2', username: '@stickerlord', image: 'https://i.ibb.co/hCj4r9j/sticker2.jpg', title: 'Sticker Spongebob Kocak', hashtags: ['spongebob', 'kocak', 'lucu'], likes: 85, bookmarks: 25, downloads: 10, shares: 5 },
-                { id: 3, user: 'UserMeme3', username: '@daily_meme', image: 'https://i.ibb.co/XjYp12z/sticker3.jpg', title: 'Sticker Monyet Keren', hashtags: ['monyet', 'keren', 'terbaru'], likes: 250, bookmarks: 100, downloads: 60, shares: 40 }
-            ];
+            const SUPABASE_URL = 'https://vnxcrssjnrncgdwysrle.supabase.co';
+            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZueGNyc3NqbnJuY2dkd3lzcmxlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU1MTg0NjcsImV4cCI6MjA3MTA5NDQ2N30.9YjBtU07-957KntkR7aZfekLpX12VviUw-aw6nt4Wc0';
+            const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+            let stickersData = [];
 
             // Fungsi untuk merender stiker ke feed
-            const renderStickers = () => {
+            const renderStickers = (stickers) => {
                 stickerFeed.innerHTML = '';
-                if (stickersData.length === 0) {
+                if (stickers.length === 0) {
                     stickerFeed.innerHTML = `
-                        <div style="text-align: center; padding: 50px;">
-                            <blockquote style="font-size: 1.2em; font-style: italic; color: #8899A6;">
-                                "Kalau tidak ada stiker, kita bikin sendiri." - Sebuah Quote Meme
+                        <div class="text-center p-12">
+                            <blockquote class="text-xl italic text-gray-500 dark:text-gray-400">
+                                Belum ada stiker yang diunggah. Jadilah yang pertama!
                             </blockquote>
                         </div>
                     `;
                 } else {
-                    stickersData.forEach(sticker => {
+                    stickers.forEach(sticker => {
                         const stickerCard = document.createElement('div');
-                        stickerCard.className = 'sticker-card';
+                        stickerCard.className = 'border border-gray-200 dark:border-darkborder rounded-lg mb-4 bg-white dark:bg-darkcard';
                         stickerCard.innerHTML = `
-                            <div class="sticker-header">
-                                <img src="https://via.placeholder.com/40" alt="Avatar" class="sticker-user-avatar">
-                                <div class="sticker-user-info">
-                                    ${sticker.user} <span class="username">${sticker.username}</span>
+                            <div class="p-4 flex items-center">
+                                <img src="${sticker.user_avatar || 'https://via.placeholder.com/48'}" alt="Avatar" class="w-12 h-12 rounded-full mr-4">
+                                <div>
+                                    <p class="font-bold">${sticker.user_name || 'Anonim'} <span class="font-normal text-gray-500">@${sticker.user_username || 'anonim'}</span></p>
                                 </div>
                             </div>
-                            <img src="${sticker.image}" alt="${sticker.title}" class="sticker-image">
-                            <div style="padding: 15px;">
-                                <h4>${sticker.title}</h4>
-                                <p style="font-size: 0.9em; color: #8899A6;">${sticker.hashtags.map(tag => `<a href="#">#${tag}</a>`).join(' ')}</p>
+                            <img src="${sticker.image_url}" alt="${sticker.title}" class="w-full">
+                            <div class="p-4">
+                                <h4 class="font-bold text-lg">${sticker.title}</h4>
+                                <p class="text-gray-500">${(sticker.hashtags || []).map(tag => `<a href="#" class="text-primary">#${tag}</a>`).join(' ')}</p>
                             </div>
-                            <div class="sticker-actions">
-                                <span class="sticker-action like-btn" data-id="${sticker.id}"><i class="fas fa-heart"></i> ${sticker.likes}</span>
-                                <span class="sticker-action bookmark-btn" data-id="${sticker.id}"><i class="fas fa-bookmark"></i> ${sticker.bookmarks}</span>
-                                <span class="sticker-action share-btn" data-id="${sticker.id}"><i class="fas fa-share-alt"></i> ${sticker.shares}</span>
-                                <span class="sticker-action download-btn" data-id="${sticker.id}"><i class="fas fa-download"></i> ${sticker.downloads}</span>
+                            <div class="flex justify-around p-2 border-t border-gray-200 dark:border-darkborder text-gray-500">
+                                <button class="flex items-center space-x-2 hover:text-primary hover:bg-gray-200 dark:hover:bg-darkbg p-2 rounded-full sticker-action like-btn" data-id="${sticker.id}"><i class="fas fa-heart"></i> <span>${sticker.likes || 0}</span></button>
+                                <button class="flex items-center space-x-2 hover:text-primary hover:bg-gray-200 dark:hover:bg-darkbg p-2 rounded-full sticker-action bookmark-btn" data-id="${sticker.id}"><i class="fas fa-bookmark"></i> <span>${sticker.bookmarks || 0}</span></button>
+                                <button class="flex items-center space-x-2 hover:text-primary hover:bg-gray-200 dark:hover:bg-darkbg p-2 rounded-full sticker-action share-btn" data-id="${sticker.id}"><i class="fas fa-share-alt"></i> <span>${sticker.shares || 0}</span></button>
+                                <button class="flex items-center space-x-2 hover:text-primary hover:bg-gray-200 dark:hover:bg-darkbg p-2 rounded-full sticker-action download-btn" data-id="${sticker.id}"><i class="fas fa-download"></i> <span>${sticker.downloads || 0}</span></button>
                             </div>
                         `;
                         stickerFeed.appendChild(stickerCard);
                     });
+                }
+            };
+
+            // Fetch stiker dari Supabase
+            const fetchStickers = async () => {
+                const { data, error } = await supabase
+                    .from('stickers')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) {
+                    console.error('Error fetching stickers:', error);
+                } else {
+                    stickersData = data;
+                    renderStickers(stickersData);
                 }
             };
 
@@ -389,108 +143,47 @@
 
                 const id = parseInt(target.dataset.id);
                 const sticker = stickersData.find(s => s.id === id);
+                const countSpan = target.querySelector('span');
 
                 if (sticker) {
                     if (target.classList.contains('like-btn')) {
                         sticker.likes += 1;
-                        target.innerHTML = `<i class="fas fa-heart" style="color: #E0245E;"></i> ${sticker.likes}`;
+                        countSpan.textContent = sticker.likes;
+                        target.classList.add('text-red-500');
                     } else if (target.classList.contains('bookmark-btn')) {
                         sticker.bookmarks += 1;
-                        target.innerHTML = `<i class="fas fa-bookmark" style="color: #FFD700;"></i> ${sticker.bookmarks}`;
+                        countSpan.textContent = sticker.bookmarks;
+                        target.classList.add('text-yellow-500');
                     } else if (target.classList.contains('download-btn')) {
                         sticker.downloads += 1;
-                        // Logika unduh sederhana
+                        countSpan.textContent = sticker.downloads;
                         const link = document.createElement('a');
                         link.href = sticker.image;
                         link.download = `${sticker.title}.jpg`;
                         document.body.appendChild(link);
                         link.click();
                         document.body.removeChild(link);
-                        target.innerHTML = `<i class="fas fa-download"></i> ${sticker.downloads}`;
                     } else if (target.classList.contains('share-btn')) {
                         sticker.shares += 1;
-                        // Logika berbagi
+                        countSpan.textContent = sticker.shares;
                         alert(`Berbagi stiker: ${sticker.title}`);
-                        target.innerHTML = `<i class="fas fa-share-alt"></i> ${sticker.shares}`;
                     }
                 }
             };
             
             // Pasang event listener ke feed utama untuk delegasi
             stickerFeed.addEventListener('click', handleAction);
-
-            // Buka modal unggah
-            openUploadModalBtn.addEventListener('click', () => {
-                uploadModal.style.display = 'flex';
-            });
-
-            // Tutup modal unggah
-            closeModalBtn.addEventListener('click', () => {
-                uploadModal.style.display = 'none';
-                uploadForm.reset();
-                stickerPreview.style.display = 'none';
-                stickerPreview.src = '';
-            });
-
-            // Pratinjau gambar saat mengunggah
-            stickerImageInput.addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = (event) => {
-                        stickerPreview.src = event.target.result;
-                        stickerPreview.style.display = 'block';
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
-
-            // Tangani pengiriman form unggah
-            uploadForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const title = document.getElementById('sticker-title').value;
-                const hashtags = document.getElementById('sticker-hashtags').value.split(' ').filter(tag => tag.startsWith('#')).map(tag => tag.substring(1));
-                const imageFile = document.getElementById('sticker-image-file').files[0];
-
-                if (!imageFile) {
-                    alert('Harap unggah gambar.');
-                    return;
-                }
-
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    const newSticker = {
-                        id: stickersData.length + 1,
-                        user: 'PenggunaBaru',
-                        username: '@penggunabaru',
-                        image: event.target.result,
-                        title,
-                        hashtags,
-                        likes: 0,
-                        bookmarks: 0,
-                        downloads: 0,
-                        shares: 0
-                    };
-                    stickersData.unshift(newSticker); // Tambahkan ke awal array
-                    renderStickers();
-                    uploadModal.style.display = 'none';
-                    uploadForm.reset();
-                    stickerPreview.style.display = 'none';
-                    stickerPreview.src = '';
-                };
-                reader.readAsDataURL(imageFile);
-            });
             
             // Toggle tema gelap/terang
             themeToggle.addEventListener('click', () => {
-                document.body.classList.toggle('dark-theme');
-                const isDark = document.body.classList.contains('dark-theme');
+                document.documentElement.classList.toggle('dark');
+                const isDark = document.documentElement.classList.contains('dark');
                 themeToggle.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
             });
 
             // Render stiker saat halaman pertama kali dimuat
-            renderStickers();
+            fetchStickers();
         });
     </script>
 </body>
-  </html>
+</html>
